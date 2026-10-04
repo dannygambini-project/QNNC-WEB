@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap oficial
+Sitemap: https://quenonoscallen.pe/seo/sitemap.xml
