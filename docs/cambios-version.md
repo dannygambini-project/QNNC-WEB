@@ -41,7 +41,7 @@ Al inicio del proyecto se disponía únicamente de un conjunto heterogéneo de i
 
 | Dimensión | Insumos Iniciales | Sitio Web Desarrollado (WEB V1) |
 |---|---|---|
-| **Estructura** | 2 archivos .docx independientes y sin formato web. | Página web estructurada en 9 secciones semánticas completas con navegación fluida. |
+| **Estructura** | 2 archivos .docx independientes y sin formato web. | Página web estructurada en 8 secciones semánticas completas con navegación fluida. |
 | **Logotipo** | 1 archivo PNG con fondo blanco sólido (1000x1000). | 5 variantes web: original, transparente sin fondo, versión blanca monocromática para footer, favicons de 32x32 y 192x192. |
 | **Imágenes** | 35 fotos crudas (peso total > 35 MB, resoluciones de hasta 12,000px). | 19 imágenes seleccionadas estratégicamente, optimizadas en WebP y JPG (peso promedio < 120 KB por imagen, reducción del 92%). |
 | **Navegación** | Ninguna. | Header fijo inteligente con resaltado dinámico de sección activa y menú móvil accesible. |
