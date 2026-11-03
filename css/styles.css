@@ -950,8 +950,19 @@ ul, ol {
    9. MISIÓN Y VISIÓN
    -------------------------------------------------------------------------- */
 .section-mision-vision .section-header {
-  margin-bottom: 0;
+  margin: 0 auto 56px auto;
   max-width: 860px;
+  text-align: center;
+}
+
+.section-mision-vision .section-header .section-kicker {
+  display: inline-block;
+  margin: 0 auto 14px auto;
+  text-align: center;
+}
+
+.section-mision-vision .section-title {
+  text-align: center;
 }
 
 .section-mision-vision .section-desc {
@@ -959,6 +970,10 @@ ul, ol {
   line-height: 1.7;
   color: var(--color-brand-navy);
   font-weight: 500;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
 
 .mv-cards-grid {
@@ -2559,7 +2574,7 @@ ul, ol {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
-  margin-bottom: 48px;
+  margin-bottom: 0;
 }
 
 .articulo-card {
