@@ -455,7 +455,120 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Log informativo para desarrolladores e integración
+
+  /* --------------------------------------------------------------------------
+     10. GESTOR DE ARTÍCULOS DE OPINIÓN Y MODAL LECTOR
+     -------------------------------------------------------------------------- */
+  const articleModal = document.getElementById('article-modal');
+  const articleModalBackdrop = document.getElementById('article-modal-backdrop');
+  const articleModalClose = document.getElementById('article-modal-close');
+  const modalBadge = document.getElementById('modal-article-badge');
+  const modalTitle = document.getElementById('modal-article-title');
+  const modalAvatar = document.getElementById('modal-article-avatar');
+  const modalAuthor = document.getElementById('modal-article-author');
+  const modalRole = document.getElementById('modal-article-role');
+  const modalDate = document.getElementById('modal-article-date');
+  const modalBody = document.getElementById('modal-article-body');
+
+  let articulosData = [];
+
+  async function loadArticles() {
+    try {
+      const res = await fetch('data/articulos.json');
+      if (res.ok) {
+        articulosData = await res.json();
+      }
+    } catch (e) {
+      console.warn('Cargando respaldo local de artículos:', e);
+    }
+
+    if (!articulosData || articulosData.length === 0) {
+      articulosData = [
+        {
+          id: 1,
+          title: "La defensa de los espacios exclusivos de las mujeres y la indemnidad infantil",
+          author: "Olga Izquierdo",
+          role: "Fundadora y Portavoz QNNC",
+          avatar: "assets/images/olga-izquierdo-medios.webp",
+          date: "18 Octubre, 2026",
+          category: "Espacios Femeninos",
+          content: "<p>La dignidad de la mujer y la indemnidad sexual de los niños no son conceptos negociables ni concesiones políticas; son derechos fundamentales consagrados en nuestra Constitución Política y en los tratados internacionales de derechos humanos. En los últimos años, hemos sido testigos de intentos deliberados por desdibujar la realidad biológica bajo consignas ideológicas, imponiendo los mal llamados 'baños inclusivos' en espacios públicos de alta concurrencia como aeropuertos, centros comerciales e instituciones educativas.</p><p>Permitir que varones biológicos que se autoperciben como mujeres ingresen a baños, vestidores y duchas de uso exclusivo para mujeres constituye una grave vulneración a la intimidad, seguridad y tranquilidad de las niñas, adolescentes y mujeres peruanas. No se trata de odio ni de discriminación hacia ningún colectivo; se trata del ejercicio legítimo del sentido común y del principio universal de protección hacia las poblaciones más vulnerables.</p><p>La promulgación de la Ley N.º 32331, nacida de la movilización ciudadana y el clamor de miles de familias, marcó un hito histórico en nuestro país: el restablecimiento del uso obligatorio de los servicios higiénicos públicos conforme al sexo biológico. Esta victoria no fue el final del camino, sino el inicio de una generación comprometida con defender la verdad sin miedo a las represalias judiciales o al escarnio público. Seguiremos vigilantes y firmes, porque cuando el bien común se defiende con valentía, ¡Que No Nos Callen!</p>"
+        },
+        {
+          id: 2,
+          title: "Libertad de expresión y objeción de conciencia en el espacio público",
+          author: "Dr. Juan José Uchuya",
+          role: "Abogado Defensor y Constitucionalista",
+          avatar: "assets/images/caso-olga-3.webp",
+          date: "02 Octubre, 2026",
+          category: "Libertad de Expresión",
+          content: "<p>El derecho fundamental a la libertad de expresión, reconocido en el artículo 2, inciso 4 de la Constitución Política del Perú, constituye la columna vertebral de cualquier orden democrático genuino. Sin embargo, en tiempos recientes hemos presenciado una peligrosa instrumentalización del derecho penal por parte de organizaciones ideológicas, cuyo propósito manifiesto ha sido intimidar, amedrentar y silenciar a quienes sostienen posturas críticas frente a la ideología de género.</p><p>El caso de Olga Izquierdo y su protesta pacífica en el Aeropuerto Jorge Chávez es un testimonio elocuente. Enfrentó una denuncia penal injustificada con el respaldo de ONGs jurídicas, pretendiendo tipificar como 'delito de odio' y 'discriminación' lo que en realidad constituía una legítima manifestación ciudadana en defensa de la intimidad de las mujeres y la infancia. Tras un año de rigurosa batalla legal, la Fiscalía resolvió archivar de manera definitiva la denuncia, estableciendo un precedente invaluable: disentir de una corriente ideológica o defender el orden biológico jamás puede ser catalogado como delito.</p><p>Este archivo definitivo nos recuerda que la justicia prevalece cuando los ciudadanos conocen sus derechos constitucionales y cuentan con una defensa firme. La libertad de expresión no es un privilegio de unos pocos, sino un escudo que pertenece a todos los peruanos para defender la verdad, la familia y el estado de derecho.</p>"
+        },
+        {
+          id: 3,
+          title: "El rol protagónico de la juventud cristiana en la política cívica",
+          author: "Liderazgo Juvenil QNNC",
+          role: "Vocería de Juventud y Acción Cívica",
+          avatar: "assets/images/dsc00345.webp",
+          date: "14 Septiembre, 2026",
+          category: "Juventud y Valores",
+          content: "<p>Durante décadas se fomentó la idea errónea de que los jóvenes cristianos debían permanecer ajenos al debate público y a las decisiones cívicas de sus naciones. Hoy, frente al avance del relativismo cultural y el deterioro moral de las instituciones, la juventud de Que No Nos Callen demuestra que la fe no se confina a cuatro paredes: se vive, se testifica y se traduce en servicio a la sociedad.</p><p>Inspirados en una cosmovisión bíblica fundamentada en la justicia, la defensa de la vida y el amor al prójimo, los jóvenes de QNNC participamos activamente en cumbres de formación, en el diálogo legislativo en el Congreso de la República y en acciones de solidaridad concreta en comunidades vulnerables. No participamos por ambición de poder, sino por sentido del deber y convicción moral de que una sociedad sana se construye protegiendo la institución familiar y la niñez.</p><p>La historia nos enseña que las grandes transformaciones comienzan cuando una minoría valiente decide no callar frente a la injusticia. Animamos a cada joven peruano a prepararse intelectual, ética y espiritualmente para liderar con integridad y ser luz en cada rincón de la vida pública nacional.</p>"
+        }
+      ];
+    }
+  }
+
+  function openArticleModal(articleId) {
+    const art = articulosData.find(a => a.id === parseInt(articleId, 10));
+    if (!art || !articleModal) return;
+
+    if (modalBadge) modalBadge.textContent = art.category || 'Opinión';
+    if (modalTitle) modalTitle.textContent = art.title;
+    if (modalAvatar) {
+      modalAvatar.src = art.avatar;
+      modalAvatar.alt = art.author;
+    }
+    if (modalAuthor) modalAuthor.textContent = art.author;
+    if (modalRole) modalRole.textContent = art.role;
+    if (modalDate) modalDate.innerHTML = `<i class="fa-regular fa-calendar-days"></i> ${art.date}`;
+    if (modalBody) modalBody.innerHTML = art.content;
+
+    articleModal.classList.add('active');
+    articleModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeArticleModal() {
+    if (!articleModal) return;
+    articleModal.classList.remove('active');
+    articleModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (articleModalClose) {
+    articleModalClose.addEventListener('click', closeArticleModal);
+  }
+  if (articleModalBackdrop) {
+    articleModalBackdrop.addEventListener('click', closeArticleModal);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && articleModal && articleModal.classList.contains('active')) {
+      closeArticleModal();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-read-article');
+    if (btn) {
+      const id = btn.getAttribute('data-article');
+      openArticleModal(id);
+    }
+  });
+
+  loadArticles();
+
+    // Log informativo para desarrolladores e integración
   console.log('%cQUE NO NOS CALLEN (QNNC) 🇵🇪', 'color:#f42217; font-size: 16px; font-weight: bold;');
   console.log('Plataforma ciudadana pro vida y pro familia lista para producción.');
   console.log('Formulario preparado para integración segura con Supabase / Webhook REST.');
