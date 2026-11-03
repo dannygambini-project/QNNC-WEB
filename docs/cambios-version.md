@@ -76,3 +76,39 @@ Al inicio del proyecto se disponía únicamente de un conjunto heterogéneo de i
 - **Honeypot Anti-Spam**: Un campo invisible detecta automáticamente bots automatizados de spam sin molestar al usuario humano con captchas invasivos.
 - **Prevención de Ataques XSS**: Sanitización de strings en todos los campos del formulario antes de procesar el estado en el DOM.
 - **Sin Exposición de Secretos**: Ninguna credencial de base de datos ni token privado queda expuesto en los archivos de distribución pública.
+
+
+---
+
+## 6. Actualización Noviembre 2026: Solicitud de Mejoras y Artículos de Opinión
+
+Basado en el documento oficial de requerimientos cívicos (`SOLICITUD DE MEJORAS PÁGINA WEB.docx`), se ejecutaron las siguientes mejoras en la plataforma:
+
+1. **Hero Section**:
+   - Actualización de la descripción al pie de la fotografía del Reconocimiento Oficial en el Congreso de la República (2024), incluyendo la mención explícita al colectivo «Con mis hijos no te metas» y la labor en defensa de las libertades individuales.
+   - Eliminación del texto repetido en micro-estadísticas 2025, integrando el resaltado en rojo de la **Ley N.º 32331** y las comillas en los "baños inclusivos".
+2. **Quiénes Somos y Misión/Visión**:
+   - Corrección del encabezado de la sección `#nosotros` para reflejar claramente su identidad como "Quiénes Somos".
+   - Reubicación y estructuración de **Misión y Visión lado a lado** en la sección `#mision-vision` mediante tarjetas simétricas interactivas (`.mv-cards-grid`).
+   - Actualización del principio de Libertad de Expresión y de la tercera característica cívica: *"Protección de la indemnidad sexual de los niños y los espacios de la mujer"*.
+3. **Historia y Logros**:
+   - Hito 2023: Actualización del texto con mención a la implementación de letreros en los baños y adición de enlace directo al video testimonial en TikTok.
+   - Hito 2024: Precisión del patrocinio legal de IDL en la denuncia penal y nacimiento formal de QNNC.
+   - Batalla Jurídica: Actualización del veredicto de inocencia de Olga Izquierdo y adición de enlaces de prensa (ADF International, ILAD Media, EWTN Noticias).
+   - Hito 2025: Actualización del título a *"El Ejecutivo Promulga la Ley N.º 32331 y Elimina los Baños Inclusivos"* con enlaces al Diario Oficial El Peruano y análisis de LP Derecho.
+   - Evidencia Fotográfica: Inclusión formal del año correspondiente en cada fotografía del hito (2023 y 2025).
+4. **Líneas de Trabajo ("¿Qué Hacemos?")**:
+   - Incorporación de signos de interrogación en el título central.
+   - Actualización de la descripción general de líneas de trabajo.
+   - Reestructuración de las tarjetas:
+     1. Formación Ciudadana y Liderazgo
+     2. Incidencia Política y Legislativa
+     3. Capacitaciones y Encuentros Internacionales (con mención a la Academia Areté de ADF International)
+     4. Acción Social en Favor de los Niños
+5. **Nueva Sección: Artículos de Opinión**:
+   - Inclusión de pestaña en el menú de navegación principal y enlaces en pie de página.
+   - Grilla responsive con 3 artículos editoriales destacados con autor, fotografía, fecha, badge temático y reseña.
+   - Modal lector accesible para lectura inmersiva con soporte de teclado (ESC) y control de foco.
+   - Estructura de datos desacoplada en `data/articulos.json` lista para integración con gestores de contenidos (CMS).
+6. **Diseño Responsivo y Accesibilidad**:
+   - Optimización de visualización en todos los dispositivos móviles, tablets y monitores de escritorio.
