@@ -263,6 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 8. Formulario de Contacto Funcional & Seguro
+  const CONTACT_RECIPIENT_EMAIL = 'quenonoscallenperu@gmail.com';
   const contactForm = document.getElementById('contact-form');
   const submitBtn = document.getElementById('form-submit-btn');
   const successCard = document.getElementById('form-success');
@@ -412,28 +413,44 @@ document.addEventListener('DOMContentLoaded', () => {
       btnText.style.display = 'none';
       btnLoading.style.display = 'inline-flex';
 
-      // Simulación de envío a endpoint / webhook / Supabase
-      // En producción, conectar a: supabase.from('contact_submissions').insert({...})
       try {
-        const formDataPayload = {
-          nombre: cleanName,
-          email: cleanEmail,
-          telefono: cleanPhone || 'No especificado',
-          motivo: interestSelect.value,
-          mensaje: cleanMsg,
-          timestamp: new Date().toISOString()
+        const ticketId = 'QNNC-' + Math.floor(100000 + Math.random() * 900000);
+        const motivoLabel = interestSelect.options[interestSelect.selectedIndex]?.text || interestSelect.value;
+        const fechaEnvio = new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' });
+
+        const emailPayload = {
+          _subject: `Nuevo Mensaje de Contacto - QNNC (${cleanName})`,
+          _template: 'table',
+          _captcha: 'false',
+          'Nombre': cleanName,
+          'Correo': cleanEmail,
+          'Teléfono': cleanPhone || 'No especificado',
+          'Motivo': motivoLabel,
+          'Mensaje': cleanMsg,
+          'Código de Ticket': ticketId,
+          'Fecha de Registro': fechaEnvio
         };
 
-        // Simulamos latencia de red de 900ms para feedback visual
-        await new Promise(resolve => setTimeout(resolve, 900));
+        // Envío directo al buzón de correo vía FormSubmit AJAX
+        const res = await fetch(`https://formsubmit.co/ajax/${CONTACT_RECIPIENT_EMAIL}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(emailPayload)
+        });
 
-        // Generar Ticket de confirmación
-        const ticketId = 'QNNC-' + Math.floor(100000 + Math.random() * 900000);
+        if (!res.ok) {
+          throw new Error(`Error en el servidor de correo: ${res.status}`);
+        }
+
+        // Generar Ticket de confirmación en pantalla
         if (feedbackTicket) {
           feedbackTicket.textContent = `Código de Registro: ${ticketId}`;
         }
 
-        // Mostrar Éxito
+        // Mostrar mensaje de éxito
         if (successCard) {
           successCard.style.display = 'flex';
           successCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -443,9 +460,10 @@ document.addEventListener('DOMContentLoaded', () => {
         contactForm.reset();
 
       } catch (err) {
-        console.error('Error al procesar envío:', err);
+        console.error('Error al procesar envío de correo:', err);
         if (errorCard) {
           errorCard.style.display = 'flex';
+          errorCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
       } finally {
         submitBtn.disabled = false;

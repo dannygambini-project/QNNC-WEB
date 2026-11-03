@@ -122,3 +122,8 @@ Basado en el documento oficial de requerimientos cívicos (`SOLICITUD DE MEJORAS
 8. **Ajustes de Alineación y Limpieza de Secciones**:
    - Centrado perfecto del encabezado institucional en la sección #mision-vision (Kicker 'Identidad y Propósito', título 'Misión y Visión' y descripción 'Nuestros fundamentos...').
    - Retiro del banner informativo de propuesta de artículos ('¿Deseas publicar tu columna de opinión en QNNC?'), dejando la grilla de artículos limpia y enfocada en el contenido editorial.
+
+9. **Integración del Formulario de Contacto al Correo Institucional**:
+   - Conexión del formulario de contacto mediante FormSubmit AJAX.
+   - Enrutamiento directo al correo oficial quenonoscallenperu@gmail.com.
+   - Envío asíncrono con plantilla de tabla HTML, Reply-To automático para respuesta directa con un clic, código de ticket generado y protección anti-spam combinada (Honeypot local + filtro en la nube).
