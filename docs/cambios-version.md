@@ -112,3 +112,9 @@ Basado en el documento oficial de requerimientos cívicos (`SOLICITUD DE MEJORAS
    - Estructura de datos desacoplada en `data/articulos.json` lista para integración con gestores de contenidos (CMS).
 6. **Diseño Responsivo y Accesibilidad**:
    - Optimización de visualización en todos los dispositivos móviles, tablets y monitores de escritorio.
+
+7. **Integración de CMS Ligero con Google Sheets**:
+   - Conexión dinámica en tiempo real mediante Google Visualization API (gviz/tq).
+   - Sincronización directa con la hoja oficial compartida (1Q8m_nMYeMTW-rwgDKIR1P4fRB7ZzqxOusAjCqjG1Qt8).
+   - Renderizado automático de artículos publicados (published = 'SI'), sanitización de imágenes de autor con fallback a la vocería oficial, formateo inteligente de párrafos y mapeo dinámico de iconos temáticos.
+   - Respaldo desacoplado permanente en data/articulos.json para garantizar disponibilidad offline o ante fallos de conexión externa.

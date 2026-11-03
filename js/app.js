@@ -457,8 +457,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   /* --------------------------------------------------------------------------
-     10. GESTOR DE ARTÍCULOS DE OPINIÓN Y MODAL LECTOR
+     10. GESTOR DE ARTÍCULOS DE OPINIÓN (GOOGLE SHEETS CMS & MODAL LECTOR)
      -------------------------------------------------------------------------- */
+  const GOOGLE_SHEET_ID = '1Q8m_nMYeMTW-rwgDKIR1P4fRB7ZzqxOusAjCqjG1Qt8';
+  const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json`;
+
+  const articulosGrid = document.getElementById('articulos-grid');
   const articleModal = document.getElementById('article-modal');
   const articleModalBackdrop = document.getElementById('article-modal-backdrop');
   const articleModalClose = document.getElementById('article-modal-close');
@@ -472,49 +476,159 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let articulosData = [];
 
+  function sanitizeAvatar(url) {
+    if (!url) return 'assets/images/olga-izquierdo-medios.webp';
+    const trimmed = String(url).trim();
+    if (trimmed.startsWith('assets/')) return trimmed;
+    if (/\.(webp|jpg|jpeg|png|svg|gif)(\?.*)?$/i.test(trimmed)) {
+      return trimmed;
+    }
+    // Si no es un enlace directo a archivo de imagen, usar foto oficial
+    return 'assets/images/olga-izquierdo-medios.webp';
+  }
+
+  function getCategoryIcon(cat) {
+    const c = (cat || '').toLowerCase();
+    if (c.includes('femenin') || c.includes('mujer') || c.includes('espacio')) {
+      return 'fa-solid fa-shield-halved';
+    }
+    if (c.includes('expres') || c.includes('legal') || c.includes('justicia') || c.includes('derecho')) {
+      return 'fa-solid fa-scale-balanced';
+    }
+    if (c.includes('joven') || c.includes('juventud') || c.includes('valor')) {
+      return 'fa-solid fa-users';
+    }
+    if (c.includes('familia') || c.includes('vida')) {
+      return 'fa-solid fa-heart';
+    }
+    return 'fa-solid fa-feather-pointed';
+  }
+
+  function formatArticleContent(content) {
+    if (!content) return '<p>Pronto más información.</p>';
+    const trimmed = String(content).trim();
+    if (/<p>|<br>|<div>|<h[1-6]>/i.test(trimmed)) {
+      return trimmed;
+    }
+    const paragraphs = trimmed
+      .split(/\n\s*\n|\n/)
+      .map(p => p.trim())
+      .filter(p => p.length > 0)
+      .map(p => `<p>${p}</p>`)
+      .join('');
+    return paragraphs || `<p>${trimmed}</p>`;
+  }
+
+  function renderArticleCards(articles) {
+    if (!articulosGrid || !articles || articles.length === 0) return;
+
+    articulosGrid.innerHTML = articles.map(art => {
+      const avatarSrc = sanitizeAvatar(art.avatar);
+      const iconClass = art.categoryIcon || getCategoryIcon(art.category);
+      const dateText = art.date || 'Reciente';
+      const catText = art.category || 'Opinión';
+      const excerptText = art.excerpt || (art.content ? art.content.replace(/<[^>]+>/g, '').slice(0, 160) + '...' : '');
+
+      return `
+        <article class="articulo-card" data-id="${art.id}">
+          <div class="articulo-header">
+            <div class="articulo-author-box">
+              <img src="${avatarSrc}" alt="${art.author}" class="author-avatar" loading="lazy" onerror="this.src='assets/images/olga-izquierdo-medios.webp'">
+              <div class="author-meta">
+                <span class="author-name">${art.author}</span>
+                <span class="author-role">${art.role || 'QNNC'}</span>
+              </div>
+            </div>
+            <span class="articulo-date"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i> ${dateText}</span>
+          </div>
+
+          <div class="articulo-body">
+            <span class="articulo-badge"><i class="${iconClass}" aria-hidden="true"></i> ${catText}</span>
+            <h3 class="articulo-title">${art.title}</h3>
+            <p class="articulo-excerpt">${excerptText}</p>
+          </div>
+
+          <div class="articulo-footer">
+            <button type="button" class="btn-read-article" data-article="${art.id}" aria-haspopup="dialog">
+              <span>Leer artículo completo</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
   async function loadArticles() {
+    let loadedFromSheets = false;
+
+    // 1. Intentar cargar en vivo desde Google Sheets
     try {
-      const res = await fetch('data/articulos.json');
+      const res = await fetch(GOOGLE_SHEET_URL);
       if (res.ok) {
-        articulosData = await res.json();
+        const text = await res.text();
+        const start = text.indexOf('{');
+        const end = text.lastIndexOf('}') + 1;
+        if (start !== -1 && end !== -1) {
+          const json = JSON.parse(text.substring(start, end));
+          const cols = (json.table.cols || []).map(c => (c.label || c.id || '').toLowerCase().trim());
+          const rows = json.table.rows || [];
+
+          const parsed = [];
+          rows.forEach((r, idx) => {
+            const cells = r.c || [];
+            const rowData = {};
+            cols.forEach((col, i) => {
+              if (i < cells.length && cells[i]) {
+                const val = cells[i].f !== undefined ? cells[i].f : cells[i].v;
+                rowData[col] = val !== null && val !== undefined ? String(val).trim() : '';
+              } else {
+                rowData[col] = '';
+              }
+            });
+
+            // Verificar si el artículo está publicado (por defecto SI)
+            const pub = (rowData.published || 'SI').toUpperCase();
+            if (pub !== 'NO' && pub !== 'FALSE' && pub !== '0' && pub !== 'BORRADOR') {
+              const artId = parseInt(rowData.id, 10) || (idx + 1);
+              parsed.push({
+                id: artId,
+                title: rowData.title || 'Artículo sin título',
+                author: rowData.author || 'Equipo QNNC',
+                role: rowData.role || 'Vocería Institucional',
+                avatar: sanitizeAvatar(rowData.avatar),
+                date: rowData.date || 'Reciente',
+                category: rowData.category || 'Opinión',
+                categoryIcon: getCategoryIcon(rowData.category),
+                excerpt: rowData.excerpt || '',
+                content: formatArticleContent(rowData.content)
+              });
+            }
+          });
+
+          if (parsed.length > 0) {
+            articulosData = parsed;
+            loadedFromSheets = true;
+            renderArticleCards(articulosData);
+            console.log(`[QNNC CMS] ${parsed.length} artículo(s) sincronizado(s) en vivo desde Google Sheets.`);
+          }
+        }
       }
     } catch (e) {
-      console.warn('Cargando respaldo local de artículos:', e);
+      console.warn('[QNNC CMS] Conexión a Google Sheets no disponible, activando respaldo local:', e);
     }
 
-    if (!articulosData || articulosData.length === 0) {
-      articulosData = [
-        {
-          id: 1,
-          title: "La defensa de los espacios exclusivos de las mujeres y la indemnidad infantil",
-          author: "Olga Izquierdo",
-          role: "Fundadora y Portavoz QNNC",
-          avatar: "assets/images/olga-izquierdo-medios.webp",
-          date: "18 Octubre, 2026",
-          category: "Espacios Femeninos",
-          content: "<p>La dignidad de la mujer y la indemnidad sexual de los niños no son conceptos negociables ni concesiones políticas; son derechos fundamentales consagrados en nuestra Constitución Política y en los tratados internacionales de derechos humanos. En los últimos años, hemos sido testigos de intentos deliberados por desdibujar la realidad biológica bajo consignas ideológicas, imponiendo los mal llamados 'baños inclusivos' en espacios públicos de alta concurrencia como aeropuertos, centros comerciales e instituciones educativas.</p><p>Permitir que varones biológicos que se autoperciben como mujeres ingresen a baños, vestidores y duchas de uso exclusivo para mujeres constituye una grave vulneración a la intimidad, seguridad y tranquilidad de las niñas, adolescentes y mujeres peruanas. No se trata de odio ni de discriminación hacia ningún colectivo; se trata del ejercicio legítimo del sentido común y del principio universal de protección hacia las poblaciones más vulnerables.</p><p>La promulgación de la Ley N.º 32331, nacida de la movilización ciudadana y el clamor de miles de familias, marcó un hito histórico en nuestro país: el restablecimiento del uso obligatorio de los servicios higiénicos públicos conforme al sexo biológico. Esta victoria no fue el final del camino, sino el inicio de una generación comprometida con defender la verdad sin miedo a las represalias judiciales o al escarnio público. Seguiremos vigilantes y firmes, porque cuando el bien común se defiende con valentía, ¡Que No Nos Callen!</p>"
-        },
-        {
-          id: 2,
-          title: "Libertad de expresión y objeción de conciencia en el espacio público",
-          author: "Dr. Juan José Uchuya",
-          role: "Abogado Defensor y Constitucionalista",
-          avatar: "assets/images/caso-olga-3.webp",
-          date: "02 Octubre, 2026",
-          category: "Libertad de Expresión",
-          content: "<p>El derecho fundamental a la libertad de expresión, reconocido en el artículo 2, inciso 4 de la Constitución Política del Perú, constituye la columna vertebral de cualquier orden democrático genuino. Sin embargo, en tiempos recientes hemos presenciado una peligrosa instrumentalización del derecho penal por parte de organizaciones ideológicas, cuyo propósito manifiesto ha sido intimidar, amedrentar y silenciar a quienes sostienen posturas críticas frente a la ideología de género.</p><p>El caso de Olga Izquierdo y su protesta pacífica en el Aeropuerto Jorge Chávez es un testimonio elocuente. Enfrentó una denuncia penal injustificada con el respaldo de ONGs jurídicas, pretendiendo tipificar como 'delito de odio' y 'discriminación' lo que en realidad constituía una legítima manifestación ciudadana en defensa de la intimidad de las mujeres y la infancia. Tras un año de rigurosa batalla legal, la Fiscalía resolvió archivar de manera definitiva la denuncia, estableciendo un precedente invaluable: disentir de una corriente ideológica o defender el orden biológico jamás puede ser catalogado como delito.</p><p>Este archivo definitivo nos recuerda que la justicia prevalece cuando los ciudadanos conocen sus derechos constitucionales y cuentan con una defensa firme. La libertad de expresión no es un privilegio de unos pocos, sino un escudo que pertenece a todos los peruanos para defender la verdad, la familia y el estado de derecho.</p>"
-        },
-        {
-          id: 3,
-          title: "El rol protagónico de la juventud cristiana en la política cívica",
-          author: "Liderazgo Juvenil QNNC",
-          role: "Vocería de Juventud y Acción Cívica",
-          avatar: "assets/images/dsc00345.webp",
-          date: "14 Septiembre, 2026",
-          category: "Juventud y Valores",
-          content: "<p>Durante décadas se fomentó la idea errónea de que los jóvenes cristianos debían permanecer ajenos al debate público y a las decisiones cívicas de sus naciones. Hoy, frente al avance del relativismo cultural y el deterioro moral de las instituciones, la juventud de Que No Nos Callen demuestra que la fe no se confina a cuatro paredes: se vive, se testifica y se traduce en servicio a la sociedad.</p><p>Inspirados en una cosmovisión bíblica fundamentada en la justicia, la defensa de la vida y el amor al prójimo, los jóvenes de QNNC participamos activamente en cumbres de formación, en el diálogo legislativo en el Congreso de la República y en acciones de solidaridad concreta en comunidades vulnerables. No participamos por ambición de poder, sino por sentido del deber y convicción moral de que una sociedad sana se construye protegiendo la institución familiar y la niñez.</p><p>La historia nos enseña que las grandes transformaciones comienzan cuando una minoría valiente decide no callar frente a la injusticia. Animamos a cada joven peruano a prepararse intelectual, ética y espiritualmente para liderar con integridad y ser luz en cada rincón de la vida pública nacional.</p>"
+    // 2. Si Google Sheets no estuvo disponible o no devolvió artículos, cargar respaldo data/articulos.json
+    if (!loadedFromSheets || articulosData.length === 0) {
+      try {
+        const res = await fetch('data/articulos.json');
+        if (res.ok) {
+          articulosData = await res.json();
+          renderArticleCards(articulosData);
         }
-      ];
+      } catch (e) {
+        console.warn('[QNNC CMS] Error al cargar respaldo local:', e);
+      }
     }
   }
 
@@ -525,8 +639,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalBadge) modalBadge.textContent = art.category || 'Opinión';
     if (modalTitle) modalTitle.textContent = art.title;
     if (modalAvatar) {
-      modalAvatar.src = art.avatar;
+      modalAvatar.src = sanitizeAvatar(art.avatar);
       modalAvatar.alt = art.author;
+      modalAvatar.onerror = () => { modalAvatar.src = 'assets/images/olga-izquierdo-medios.webp'; };
     }
     if (modalAuthor) modalAuthor.textContent = art.author;
     if (modalRole) modalRole.textContent = art.role;
