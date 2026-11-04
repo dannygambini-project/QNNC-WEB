@@ -127,3 +127,7 @@ Basado en el documento oficial de requerimientos cívicos (`SOLICITUD DE MEJORAS
    - Conexión del formulario de contacto mediante FormSubmit AJAX.
    - Enrutamiento directo al correo oficial quenonoscallenperu@gmail.com.
    - Envío asíncrono con plantilla de tabla HTML, Reply-To automático para respuesta directa con un clic, código de ticket generado y protección anti-spam combinada (Honeypot local + filtro en la nube).
+
+10. **Actualización de Textos Institucionales en Quiénes Somos y Hero**:
+    - Precisión del pie de foto del reconocimiento en el Congreso (2024), unificando el nombre del colectivo a “Con Mis Hijos No Te Metas”.
+    - Actualización de la descripción general de Quiénes Somos, explicitando que la labor de QNNC es provida, profamilia, no partidaria, sin fines de lucro y enfocada en fines educativos, culturales, sociales y de formación ciudadana.
