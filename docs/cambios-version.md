@@ -131,3 +131,9 @@ Basado en el documento oficial de requerimientos cívicos (`SOLICITUD DE MEJORAS
 10. **Actualización de Textos Institucionales en Quiénes Somos y Hero**:
     - Precisión del pie de foto del reconocimiento en el Congreso (2024), unificando el nombre del colectivo a “Con Mis Hijos No Te Metas”.
     - Actualización de la descripción general de Quiénes Somos, explicitando que la labor de QNNC es provida, profamilia, no partidaria, sin fines de lucro y enfocada en fines educativos, culturales, sociales y de formación ciudadana.
+
+11. **Refinamiento Editorial y Optimización de Galería Multimedia**:
+    - Ajuste ortográfico y tipográfico en anuncio superior y encabezado Hero («Que No Nos Callen, ¡depende de Ti! (QNNC)»).
+    - Actualización del pie de foto del reconocimiento oficial en el Congreso, especificando el cargo de Olga Izquierdo como presidente de QNNC.
+    - Consolidación del texto de Quiénes Somos y expansión de la descripción de Participación Ciudadana Activa con enfoque en formación cívica y cosmovisión bíblica.
+    - Curaduría de la Galería Multimedia: depuración de elementos redundantes y actualización de la fotografía de Areté Academy Latinoamérica 2025 (Costa Rica) con la participación de Olga Izquierdo.
